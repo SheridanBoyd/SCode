@@ -1,0 +1,168 @@
+---
+  swagger: "2.0"
+  info:
+    version: "None"
+    title: "None"
+    description: "None"
+    termsOfService: "None"
+    contact:
+      name: ""
+  host: "https://demo9425206.mockable.io"
+  basePath: "/"
+  schemes:
+    - "https"
+    - "http"
+  consumes:
+    - "application/json"
+  produces:
+    - "application/json"
+  tags:
+    - name: demo9425206
+      description: https://demo9425206.mockable.io
+
+  paths:
+    
+    /:
+      
+      get:
+        description: ""
+        operationId: "GET /"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /johndoe45123456789/inventory:
+      
+      get:
+        description: ""
+        operationId: "GET /johndoe45123456789/inventory"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /johndoe45123456789/objects/lever:
+      
+      get:
+        description: ""
+        operationId: "GET /johndoe45123456789/objects/lever"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /johndoe45123456789/objects/lever?lever=on:
+      
+      get:
+        description: ""
+        operationId: "GET /johndoe45123456789/objects/lever?lever=on"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /johndoe45123456789/rooms/dungeon:
+      
+      get:
+        description: ""
+        operationId: "GET /johndoe45123456789/rooms/dungeon"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /johndoe45123456789/rooms/dungeon?lever=on:
+      
+      get:
+        description: ""
+        operationId: "GET /johndoe45123456789/rooms/dungeon?lever=on"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /johndoe45123456789/rooms/escape:
+      
+      get:
+        description: ""
+        operationId: "GET /johndoe45123456789/rooms/escape"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /login:
+      
+      get:
+        description: ""
+        operationId: "GET /login"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
+    /token:
+      
+      post:
+        description: ""
+        operationId: "POST /token"
+        tags:
+          - demo9425206
+        produces:
+          - "text/html"
+        responses:
+          "200":
+            description: ""
+        
+      
+      
+    
