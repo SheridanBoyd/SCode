@@ -116,7 +116,7 @@ class GameHandler(webapp2.RequestHandler):
             textadventure = lexerparser.parser(lexedstring)
         self.response.write("""<frameset cols="50%,50%">
   <frame src="/{token}/rooms/start" name='game'>
-  <frame src="/{token}/inventory" name='misc'>
+  <frame src="/{token}/editing" name='misc'>
 </frameset>""".format(token = token))
         
 class RoomHandler(webapp2.RequestHandler):
@@ -154,7 +154,7 @@ class SaveHandler(webapp2.RequestHandler):
         user = query.get()
         user.game = game
         user.put()
-        self.response.write("""Your game is now <a href="/%s/rooms/start" target='game'>playable</a>""" % (token))
+        self.response.write("""Your game is now <a href="/{token}/rooms/start" target='game'>playable</a><br>Go back to <a href="/{token}/editing">editing</a>""".format(token = token))
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
