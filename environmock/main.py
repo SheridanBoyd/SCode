@@ -121,6 +121,8 @@ class GameHandler(webapp2.RequestHandler):
         
 class RoomHandler(webapp2.RequestHandler):
     def get(self,token,room):
+        global environment
+        environment['token'] = token
         self.response.write((textadventure.rooms[room]).htmlstr(environment))
 
 class EditingHandler(webapp2.RequestHandler):
@@ -133,7 +135,7 @@ class EditingHandler(webapp2.RequestHandler):
             game = user.game
         self.response.write("""{message}<form action="/{token}/savegame" method="post">
   Game:<br><textarea name="game" rows="50" cols="100">{game}</textarea><br>
-  <input type="submit" value="Submit">
+  <input type="submit" value="Save">
 </form>""".format(token = token,message = message, game = game))
 
 class SaveHandler(webapp2.RequestHandler):
@@ -158,12 +160,12 @@ class SaveHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
-    ('/([a-zA-Z0-9]+)/inventory', InventoryHandler),
+    ('/([\w\d\.\-]+)/inventory', InventoryHandler),
     ('/token', TokenHandler),
-    ('/([a-zA-Z0-9]+)/game', GameHandler),
-    ('/([a-zA-Z0-9]+)/rooms/([a-zA-Z0-9_]+)', RoomHandler),
+    ('/([\w\d\.\-]+)/game', GameHandler),
+    ('/([\w\d\.\-]+)/rooms/([\w\d\.\-]+)', RoomHandler),
 #   ('/([a-zA-Z0-9]+)/editing', EditingHandler),
-    ('/([a-zA-Z0-9]+)/savegame', SaveHandler),
+    ('/([\w\d\.\-]+)/savegame', SaveHandler),
     webapp2.Route(r'/<token>/editing', handler=EditingHandler, name='editing')
 
 ], debug=True)

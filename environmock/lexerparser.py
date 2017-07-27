@@ -19,7 +19,7 @@ class ParsingError(Exception):
 # This function accepts normal character and returns how many there are
 def numChars(i,textlist):
     numchars = -1
-    valid = [' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','0','?','\'','!','’','.',',','#','-','_','\\','"','=']
+    valid = [' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','0','?','\'','!','’','.',',','#','-','_','\\','"','=','/',':','~','&','$','^','*','(',')','+',';']
     true = textlist[i] in valid
     while true:
         numchars += 1
@@ -139,8 +139,8 @@ def lex(text):
             tokenlist.append(('ALT_TEXT','|'))
         elif textlist[i] == '@':
             tokenlist.append(('NEW_GUARD','@'))
-        elif textlist[i] == '/':
-            tokenlist.append(('GUARD_LIMIT','/'))
+        elif textlist[i] == '`':
+            tokenlist.append(('GUARD_LIMIT','`'))
         else:
             tempi = i
             thing = numChars(i,textlist)
@@ -313,7 +313,7 @@ class Guard(object):
 
     def htmlstr(self,environment):
         if list(zs.compilerun(repr(self.conditions),environment['zenvironment']))[0]:
-            return self.guard_desc.htmlstr(environment)
+            return '\n' + str(self.guard_desc.htmlstr(environment))
         else:
             return ''#list(zs.compilerun(repr(self.conditions),environment['zenvironment']))[0]
     
@@ -398,6 +398,8 @@ def room_desc(i,lexedstring):
                     break
             except:
                 break
+        if lexedstring[i][0] == 'GUARD_LIMIT':
+            break
         if lexedstring[i][0] in valid:
             if lexedstring[i][0] == 'CHARS':
                 itemlist.append(Chars(lexedstring[i][1]))
@@ -414,7 +416,7 @@ def room_desc(i,lexedstring):
                 try:
                     i,newguard = guard(i,lexedstring)
                     itemlist.append(newguard)
-                    i += 1
+                    i +=1
                 except ParsingError:
                     try:
                         i,newscript = variable(i,lexedstring)
