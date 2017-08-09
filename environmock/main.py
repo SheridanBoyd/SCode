@@ -20,8 +20,7 @@ except:
     pass
 
 #import zscript.zscript as zs
-
-from google.appengine.ext import ndb
+from betterdatabase import *
 
 import zscript as zs
 import lexerparser
@@ -46,10 +45,6 @@ A secret door hidden behind a large tapestry opens to a stairwell going [[down]]
 You follow the staircase down down down until you get to a [[music|music room]]
 
 """
-
-class User(ndb.Model):
-    token = ndb.StringProperty()
-    game = ndb.TextProperty()
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -90,9 +85,9 @@ Hi you must be new, have a look around and make your own game
 
 """
             user.put()
-        self.response.write("""Hi %s!<br>This is your <a href="/%s/game">token</a>""" % (username,token))
+        self.response.write("""Hi %s!<br>This is your <a href="/%s/quickedit">token</a>""" % (username,token))
 
-class GameHandler(webapp2.RequestHandler):
+class QuickEditHandler(webapp2.RequestHandler):
     def get(self,token):
         global textadventure
         query = User.query(User.token == token)
@@ -118,10 +113,19 @@ class GameHandler(webapp2.RequestHandler):
   <frame src="/{token}/rooms/start" name='game'>
   <frame src="/{token}/editing" name='misc'>
 </frameset>""".format(token = token))
-        
+
+
+class GameHandler(webapp2.RequestHandler):
+    def get(self,token):
+        pass
+
 class RoomHandler(webapp2.RequestHandler):
     def get(self,token,room):
         global environment
+        query = User.query(User.token == token)
+        user = query.get()
+        game  = user.game
+
         environment['token'] = token
         self.response.write((textadventure.rooms[room]).htmlstr(environment))
 
@@ -136,12 +140,14 @@ class EditingHandler(webapp2.RequestHandler):
         self.response.write("""{message}<form action="/{token}/savegame" method="post">
   Game:<br><textarea name="game" rows="50" cols="100">{game}</textarea><br>
   <input type="submit" value="Save">
+
 </form>""".format(token = token,message = message, game = game))
 
 class SaveHandler(webapp2.RequestHandler):
     def post(self,token):
         global textadventure
-        game = str(self.request.get('game'))
+        game = self.request.get('game')
+        game = str(game.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u"\u2028", "\n"))
         try:
             lexedstring = lexerparser.lex(game)
         except lexerparser.LexingError as e:
@@ -162,9 +168,10 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/([\w\d\.\-]+)/inventory', InventoryHandler),
     ('/token', TokenHandler),
-    ('/([\w\d\.\-]+)/game', GameHandler),
+    ('/([\w\d\.\-]+)/quickedit', QuickEditHandler),
     ('/([\w\d\.\-]+)/rooms/([\w\d\.\-]+)', RoomHandler),
 #   ('/([a-zA-Z0-9]+)/editing', EditingHandler),
+    ('/([\w\d\.\-]+)/game', GameHandler),
     ('/([\w\d\.\-]+)/savegame', SaveHandler),
     webapp2.Route(r'/<token>/editing', handler=EditingHandler, name='editing')
 
