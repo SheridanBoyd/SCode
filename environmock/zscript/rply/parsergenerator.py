@@ -6,11 +6,10 @@ import string
 import sys
 import warnings
 
-from rply.appdirs import AppDirs
-from rply.errors import ParserGeneratorError, ParserGeneratorWarning
-from rply.grammar import Grammar
-from rply.parser import LRParser
-from rply.utils import Counter, IdentityDict, iteritems, itervalues
+from utils import Counter, IdentityDict, iteritems, itervalues
+from grammar import Grammar
+from parser import LRParser
+from errors import ParserGeneratorError, ParserGeneratorWarning
 
 LARGE_VALUE = sys.maxsize
 
@@ -174,21 +173,22 @@ class ParserGenerator(object):
         g.compute_follow()
 
         # cache_dir = AppDirs("rply").user_cache_dir
-        cache_file = 'grammar.txt'
+        cache_file = 'zgrammar.txt'
 
         table = None
         if os.path.exists(cache_file):
-            with open(cache_file) as f:
+            with open(cache_file, 'r') as f:
                 data = json.load(f)
             if self.data_is_valid(g, data):
                 table = LRTable.from_cache(g, data)
         if table is None:
             table = LRTable.from_grammar(g)
+            serial = self.serialize_table(table)
             try:
                 with open(cache_file, "w") as f:
-                    json.dump(self.serialize_table(table), f)
-            except IOError:
-                pass
+                    json.dump(serial, f)
+            except IOError as e:
+                print(e.message)
 
         if table.sr_conflicts:
             warnings.warn(

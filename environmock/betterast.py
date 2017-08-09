@@ -1,3 +1,5 @@
+import zscript as zs
+
 class Endline(object):
     def __init__(self):
         pass
@@ -140,7 +142,7 @@ class Special(object):
         self.guard_desc = guard_desc
 
     def __str__(self):
-        return '@%s/%s/' % (str(self.conditions), str(self.guard_desc))
+        return '{?%s}%s\n' % (str(self.conditions), str(self.guard_desc))
 
     def __repr__(self):
         return '@%s/%s/' % (repr(self.conditions), repr(self.guard_desc))

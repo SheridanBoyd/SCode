@@ -24,6 +24,9 @@ from betterdatabase import *
 
 import zscript as zs
 import lexerparser
+import betterlexer as bl
+import betterparser as bp
+import betterast as ba
 
 textadventure = None #IT gets set later in gamehandler and gets used
 zenvironment = {}
@@ -93,22 +96,22 @@ class QuickEditHandler(webapp2.RequestHandler):
         query = User.query(User.token == token)
         user = query.get()
         try:
-            lexedstring = lexerparser.lex(user.game)
+            lexedstring = bl.lexer(user.game)
         except lexerparser.LexingError as e:
             game = """#start
             Oh nooos, something went wrong!
             {e}
             """.format(e=e)
-            lexedstring = lexerparser.lex(game)
+            lexedstring = bl.lexer(game)
         try:
-            textadventure = lexerparser.parser(lexedstring)
+            textadventure = bp.parser.parse(lexedstring)
         except lexerparser.ParsingError as e:
             game = """#start
             Oh nooos, something went wrong!
             {e}
             """.format(e = e)
-            lexedstring = lexerparser.lex(game)
-            textadventure = lexerparser.parser(lexedstring)
+            lexedstring = bl.lexer(game)
+            textadventure = bp.parser.parse(lexedstring)
         self.response.write("""<frameset cols="50%,50%">
   <frame src="/{token}/rooms/start" name='game'>
   <frame src="/{token}/editing" name='misc'>
@@ -122,10 +125,12 @@ class GameHandler(webapp2.RequestHandler):
 class RoomHandler(webapp2.RequestHandler):
     def get(self,token,room):
         global environment
+        global textadventure
         query = User.query(User.token == token)
         user = query.get()
-        game  = user.game
-
+        game = user.game
+        lexedstring = bl.lexer(game)
+        textadventure = bp.parser.parse(lexedstring)
         environment['token'] = token
         self.response.write((textadventure.rooms[room]).htmlstr(environment))
 

@@ -29,7 +29,7 @@ def expression_link_alt(p):
 def expression_chars(p):
     return p[0].getstr()
 
-@pg.production('exit : exit EOF')
+@pg.production('exit : exit EOL')
 def expression_exit(p):
     return p[0] + '\n'
 
@@ -37,18 +37,12 @@ def expression_exit(p):
 def expression_break(p):
     return Exit(p[0])
 
-
-@pg.production('end_line : EOF')
-def expression_end_line(p):
-    return Endline()
-
-
-@pg.production('exit : EOF')
+@pg.production('exit : EOL')
 def expression_exit(p):
     return '\n'
 
 
-@pg.production('special : NEW_SPECIAL room_desc_line EOF')
+@pg.production('special : NEW_SPECIAL room_desc_line EOL')
 def expression_special(p):
     return Special(p[0].getstr()[2:-1],p[1])
 
@@ -67,15 +61,14 @@ def expression_room_desc_line(p):
     return []
 
 
-@pg.production('room_desc : room_desc_line room_desc')
-def expression_room_desc_begining(p):
-    return p[0] + p[1]
-
-
 @pg.production('room_desc : room_desc break room_desc_line ')
+@pg.production('room_desc : room_desc EOL room_desc_line ')
 def expression_room_desc_begining(p):
     return p[0] + p[2]
 
+@pg.production('room_desc : room_desc_line')
+def expression_room_desc_begining(p):
+    return p[0]
 
 @pg.production('room : NEW_ROOM chars EOL room_desc break')
 def expression_room(p):
@@ -96,21 +89,14 @@ parser = pg.build()
 
 if __name__ == '__main__':
     thing = """#start
-[[briefsge|Brief for Sheridan Game Engine]]
-[[briefccg|Brief for Climate Change Game]]
-Why am I using my website instead of twine?
-because my website is server side meaning that it can be played by multiple people.
-The importance of games being able to be played by multiple people is that it can be cooperative.
-The importance of it being cooperative is that in the real world, people have to cooperate to solve climate change.
-One person can't fix climate change by themselves. So in my climate change game, I want multiple players so that people have to cooperate to win and it means they know what it's like in real life with how countries have to cooperate. It is also good in a class room environment because it means that classmates can work and learn together on the game. The reason that I'm not using Twine is because Twine is client side, meaning it's all run through the player's end and the different players can't play together.
-Another reason why I'm using my own program instead of Twine is because I can change my program to fit the needs of my game, so that my game is exactly how I want it.
-I want this to be used by...
-Game engine for those who want to make games that aren't professional programmers. And those who want to collaborate on the project.
-Note taking program for those who want to take notes collaboratively.
+[[test]] {blah = 0} [[blah]]
+
+#test
+this is a test [[blah]] {blah = 1}
+
+#blah
+{?blah ?= 1} hello this is working
 [[start]]
-
-
-
 
 """
 
