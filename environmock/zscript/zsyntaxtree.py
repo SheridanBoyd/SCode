@@ -295,6 +295,103 @@ class BinOp(Base):
         return 'BinOp({0}, {1})'.format(self.l._pyrepr(), self.r._pyrepr())
 
 
+class Compare(Base):
+    def __init__(self, l, r, com):
+        if '==' in com:
+            self.com = ET(l, r)
+        elif '!=' in com:
+            self.com = NET(l, r)
+        elif '>=' in com:
+            self.com = MTOET(l, r)
+        elif '<=' in com:
+            self.com = LTOET(l, r)
+        elif '>' in com:
+            self.com = MT(l, r)
+        elif '<' in com:
+            self.com = LT(l, r)
+
+    def __call__(self, env, flag=None):
+        return self.com(env, flag)
+
+    def __repr__(self):
+        return repr(self.com)
+
+
+class ET(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) == self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' == ' + repr(self.r)
+
+
+class NET(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) != self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' != ' + repr(self.r)
+
+
+class MTOET(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) >= self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' >= ' + repr(self.r)
+
+
+class LTOET(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) <= self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' <= ' + repr(self.r)
+
+
+class MT(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) > self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' > ' + repr(self.r)
+
+
+class LT(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) < self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' < ' + repr(self.r)
+
+
+class And(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) and self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' and ' + repr(self.r)
+
+
+class Or(BinOp):
+    def __call__(self, env, flag=None):
+        return self.l(env, flag) or self.r(env, flag)
+
+    def __repr__(self):
+        return repr(self.l) + ' or ' + repr(self.r)
+
+
+class Not(Base):
+    def __init__(self, bool):
+        self.bool = bool
+
+    def __call__(self, env, flag=None):
+        return not self.bool(env, flag)
+
+    def __repr__(self):
+        return 'not ' + repr(self.bool)
+
+
 class Add(BinOp):
     def __call__(self, env, flag=None):
         return self.l(env, flag) + self.r(env, flag)
@@ -426,7 +523,7 @@ class Env:
                 if flag == 'cur' and item in self.nextval:
                     raise NameError('The definition "%s" needs to be initalized first' % item)
                 else:
-                    raise NameError('I can"t find the value corresponding to %s' % item)
+                    raise NameError("I can't find the value corresponding to %s" % item)
             else:
                 raise Exception('The flag "%s" is not a valid flag' % flag)
 
@@ -457,7 +554,7 @@ class Env:
                     self.current[item] = value
         elif flag == 'val':
             if not(self.repl) and (item in self.current):  # Checks for a Current Definition by the same Identifier
-                raise Exception('Cant change a Current Definition to a Variable "%s"' % item)
+                raise Exception("Can't change a Current Definition to a Variable '%s'" % item)
             else:
                 if self.repl and (item in self.current):
                     del self.current[item]

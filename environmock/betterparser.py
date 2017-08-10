@@ -27,7 +27,7 @@ def expression_link_alt(p):
 
 @pg.production('chars : CHARS')
 def expression_chars(p):
-    return p[0].getstr()
+    return Chars(p[0].getstr())
 
 @pg.production('exit : exit EOL')
 def expression_exit(p):
@@ -37,6 +37,10 @@ def expression_exit(p):
 def expression_break(p):
     return Exit(p[0])
 
+@pg.production('endline : EOL')
+def expression_exit(p):
+    return Endline()
+
 @pg.production('exit : EOL')
 def expression_exit(p):
     return '\n'
@@ -44,7 +48,7 @@ def expression_exit(p):
 
 @pg.production('special : NEW_SPECIAL room_desc_line EOL')
 def expression_special(p):
-    return Special(p[0].getstr()[2:-1],p[1])
+    return Special(p[0].getstr()[2:-1],Room_desc(p[1]))
 
 
 @pg.production('room_desc_line : room_desc_line special')
@@ -62,9 +66,13 @@ def expression_room_desc_line(p):
 
 
 @pg.production('room_desc : room_desc break room_desc_line ')
-@pg.production('room_desc : room_desc EOL room_desc_line ')
+@pg.production('room_desc : room_desc endline room_desc_line ')
 def expression_room_desc_begining(p):
-    return p[0] + p[2]
+    '''
+    roomdesc: list(special/script/link/chars/break/endline)
+    roomdescline: list(special/script/link/chars)
+    '''
+    return p[0] + [p[1]] + p[2]
 
 @pg.production('room_desc : room_desc_line')
 def expression_room_desc_begining(p):
@@ -82,6 +90,7 @@ def expression_rooms(p):
 
 @pg.production('rooms : room')
 def expression_rooms_begining(p):
+    ''' room '''
     return [p[0]]
 
 
@@ -89,13 +98,13 @@ parser = pg.build()
 
 if __name__ == '__main__':
     thing = """#start
-[[test]] {blah = 0} [[blah]]
+[[test]] {blah := 0} [[blah]]
 
 #test
-this is a test [[blah]] {blah = 1}
+this is a test [[blah]] {blah := 1}
 
 #blah
-{?blah ?= 1} hello this is working
+{?blah == 1} hello this is working
 [[start]]
 
 """
@@ -109,3 +118,7 @@ this is a test [[blah]] {blah = 1}
         colnum = spos.colno
         raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum))
     print(str(AST))
+    print(type(AST))
+    print AST.rooms
+    player = Player()
+    player(AST)

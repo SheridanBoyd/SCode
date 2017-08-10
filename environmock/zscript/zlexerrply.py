@@ -2,6 +2,10 @@ from rply import LexerGenerator
 
 lg = LexerGenerator()
 
+lg.add('AND', r' *and *')
+lg.add('NOT', r' *not *')
+lg.add('OR', r' *or *')
+lg.add('COMP', r' *(==|!=|<=|>=|<|>) *')
 lg.add('ADD', r' *\+ *')
 lg.add('SUB', r' *- +')
 lg.add('NEG', r'-')
@@ -12,8 +16,6 @@ lg.add('DEF', r' *= *')
 lg.add('EQ', r' *:= *')
 
 lg.ignore(r';;.*')  # Captures Comments
-
-lg.add('COMP', r' *\?=|!=|<=|>=|<|> *')
 
 lg.add('LB', r'\( *')
 lg.add('RB', r' *\)')

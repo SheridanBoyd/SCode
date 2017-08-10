@@ -2,7 +2,6 @@ from zlexerrply import lexer
 from rply.errors import *
 from zscriptrply import parser
 from zsyntaxtree import *
-import re
 
 
 def printgen(gen):
@@ -86,11 +85,11 @@ def compiler(instr, x=1):
 
 
 def runerror(e, instr, x):
-    message = e.message
-    args = str(e.args)[1:-1]
+    args = ''.join([arg for arg in e.args if type(arg) == str])
     etype = e.__class__.__name__
     raise Exception(
-        etype + ': ' + args + message + '\nThere was an error while running the line: "%s" \nLineNo: %d' % (instr, x))
+        etype + ': ' + args + '\nThere was an error while running the line: "%s" \nLineNo: %d' % (instr, x))
+
 
 def run(tree, env, instr='', x=1):
     plotting = []
@@ -98,7 +97,6 @@ def run(tree, env, instr='', x=1):
         out = tree(env)
     except Exception as e:
         runerror(e, instr, x)
-
     if out is not None:
         try:
             plotting = printgen(out)
@@ -115,7 +113,7 @@ def compilerun(eq, env):
     for instr in eq:
         tree = compiler(instr, x)
         plot = run(tree, env, instr, x)
-        if '=' not in instr:
+        if type(tree) in (Next, Print):
             plottings.append(plot)
         x += 1
     return plottings
@@ -140,41 +138,8 @@ def repl():
 
 
 if __name__ == '__main__':
- #   repl()
-    # tokens = lexer.lex('a_ == - 1 + (2) * 5 ^ 3')
-    # pro = parser.parse(tokens)
-    # env = {'current': {}, 'next': {}, 'value': {'a': Add(Number(4), Variable('b')), 'b': Number(7)}}
-    # print(pro(env, ))
-    # print(env, )
-    # test = """
-    # a = 1
-    # b = 2
-    # c = 1
-    # d2 == b^2 - 4*a*c
-    # x1 == -b + d2^0.5
-    # x2_ == -b - d2_^0.5
-    # a
-    # b
-    # c
-    # d2_
-    # x1_
-    # x2_"""
-    # testparser(test)
-    #
-    # ftest = '''
-    # n1 = 1
-    # n2 = 1
-    # n1_ == n2
-    # n2_ == n1 + n2
-    # next 4
-    # n2
-    #
-    # n2_'''
-    # test= '''a = 0
-    # a_ == a + 1
-    # next 100'''
-    # testparser(ftest)
-    # #ballp = [-0.109, -0.643]
+    import matplotlib.pyplot as plt
+    import numpy as np
     repl()
     consta = '''
         F = 1
@@ -477,8 +442,29 @@ next 10
             Fs = -ks(stretch)Lh
             Fks = -Kfs(dLdt)Lh ;; in the direction of the spring, against the spring movement
     '''
+
+    booleantest = '''
+    x := 2
+    y := True
+   ;; x-or = x or y and not x and y
+    c := 1
+    -2x(c)x(c)3^c/x(c)x/(c)3(c)
+    2x/3y
+    '''
+
+    # 2x/(x + 3)(x + 5)
+    # 2x/(x + 3)(x + 5) * (x+7)
+    # ((2x)/(x + 3))*(x + 5) * (x+7)
+    # x / ((x + 3)*(x + 5))
+    #
+    # 3 / 4
+    # 3/4
+    # 3*x/(3*y)
+    # 3x/3xy
+    # 3x/(3x*y) /
+
     env1 = Env()
-    out = compilerun(spring3, env1)
+    out = compilerun(booleantest, env1)
     # print(out)
     env2 = Env({'False': Boolean(False), 'sq': Literal(101.0), 'True': Boolean(True), 't': Literal(10.0),
                'x': Literal(10.0498756211)},
@@ -488,13 +474,13 @@ next 10
               defaultdict(list, {'t_': ['t'], 'x': [], 'x_': ['x', 'sq'], 't': [], 'sqrg': ['x']}), ['t', 'x', 'sqrg'],
               {'mag': FuncCall(abs)})
     # print('done')
-    plottings = out
-    # plotting = np.array(plottings[-2])
+    # plottings = out
+    # plotting = np.array(plottings[0])
     # plotting = plotting.T
-    # print(list(plotting))
-    # plt.plot(plotting[1], plotting[2])
+    # # print(list(plotting))
+    # # plt.plot(plotting[1], plotting[2])
     # plt.plot(plotting[1].real, plotting[1].imag)
-    # out = testparser(threebody)
+    # # out = testparser(threebody)
     # plotting = np.array(out)
     # plotting = plotting.T
     # #print(plotting)
@@ -519,4 +505,4 @@ next 10
          -0.754, -0.761, -0.757, -0.739, -0.719, -0.697, -0.68, -0.664, -0.655, -0.651, -0.659, -0.671, -0.69, -0.71,
          -0.729, -0.743, -0.756, -0.758, -0.75, -0.737, -0.718, -0.699, -0.677, -0.662, -0.654, -0.652]
     # plt.plot(X,Y)
-    # plt.show()
+    plt.show()

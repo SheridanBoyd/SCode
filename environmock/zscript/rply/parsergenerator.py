@@ -173,7 +173,7 @@ class ParserGenerator(object):
         g.compute_follow()
 
         # cache_dir = AppDirs("rply").user_cache_dir
-        cache_file = 'zgrammar.txt'
+        cache_file = cache_dir = 'zgrammar.txt'
 
         table = None
         if os.path.exists(cache_file):
