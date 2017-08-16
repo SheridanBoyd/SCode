@@ -29,7 +29,7 @@ import betterparser as bp
 import betterast as ba
 
 textadventure = None #IT gets set later in gamehandler and gets used
-zenvironment = {}
+zenvironment = zs.Env(repl=True)
 environment = {'zenvironment':zenvironment}
 
 example = """#start

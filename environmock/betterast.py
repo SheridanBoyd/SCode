@@ -169,7 +169,7 @@ class Player(object):
 
     def __call__(self, textadventure):
         inputed = ''
-        zenvironment = zs.Env()
+        zenvironment = zs.Env(repl=True)
         environment = {'zenvironment':zenvironment}
         environment['token'] = 'test12'
         while inputed != 'quit':
