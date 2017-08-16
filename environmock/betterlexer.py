@@ -8,7 +8,7 @@ lg.add('ALT_TEXT', r'\|')
 lg.add('NEW_ROOM', r'#')
 lg.add('NEW_SPECIAL', r'{\?[ -\|]*}')
 lg.add('SCRIPT', r'{[ -\|]*}')
-lg.add('EOL', r'\n|\r|\r\n')
+lg.add('EOL', r'\r?\n')
 lg.add('CHARS', r'[^\]\[\{\}\|\n|\r|\r\n]+')
 
 l = lg.build()

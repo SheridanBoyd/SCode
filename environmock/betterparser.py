@@ -37,9 +37,6 @@ def expression_exit(p):
 def expression_break(p):
     return Exit(p[0])
 
-@pg.production('endline : EOL')
-def expression_exit(p):
-    return Endline()
 
 @pg.production('exit : EOL')
 def expression_exit(p):
@@ -66,7 +63,6 @@ def expression_room_desc_line(p):
 
 
 @pg.production('room_desc : room_desc break room_desc_line ')
-@pg.production('room_desc : room_desc endline room_desc_line ')
 def expression_room_desc_begining(p):
     '''
     roomdesc: list(special/script/link/chars/break/endline)
@@ -98,14 +94,49 @@ parser = pg.build()
 
 if __name__ == '__main__':
     thing = """#start
-[[test]] {blah := 0} [[blah]]
+Hi you must be new, have a *look* around and make your own game<marquee> <strong>THIS</strong> <span style='color:red'>IS</span> <em>NOT</em> <span style='background-color:#32cd32'>GOOD!!!!!!!</span></marquee>
 
-#test
-this is a test [[blah]] {blah := 1}
+An h1 header
+============
 
-#blah
-{?blah == 1} hello this is working
-[[start]]
+Paragraphs are separated by a blank line.
+
+2nd paragraph. *Italic*, **bold**, and `monospace`. Itemized lists
+look like:
+
+  * this one
+  * that one
+  * the other one
+
+Note that --- not considering the asterisk --- the actual text
+content starts at 4-columns in.
+
+> Block quotes are
+> written like so.
+>
+> They can span multiple paragraphs,
+> if you like.
+
+Use 3 dashes for an em-dash. Use 2 dashes for ranges (ex., "it's all
+in chapters 12--14"). Three dots ... will be converted to an ellipsis.
+Unicode is supported.
+
+
+
+An h2 header
+------------
+
+Here's a numbered list:
+
+ 1. first item
+ 2. second item
+ 3. third item
+
+    codeblock?
+    111WWW00OOllliii
+
+    also?
+
 
 """
 

@@ -26,6 +26,7 @@ import zscript as zs
 import lexerparser
 import betterlexer as bl
 import betterparser as bp
+from markdown import markdown
 import betterast as ba
 
 textadventure = None #IT gets set later in gamehandler and gets used
@@ -132,7 +133,7 @@ class RoomHandler(webapp2.RequestHandler):
         lexedstring = bl.lexer(game)
         textadventure = bp.parser.parse(lexedstring)
         environment['token'] = token
-        self.response.write((textadventure.rooms[room]).htmlstr(environment))
+        self.response.write(markdown((textadventure.rooms[room]).htmlstr(environment), extensions=['markdown.extensions.fenced_code']))
 
 class EditingHandler(webapp2.RequestHandler):
     def get(self,token):
@@ -154,13 +155,13 @@ class SaveHandler(webapp2.RequestHandler):
         game = self.request.get('game')
         game = str(game.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u"\u2028", "\n"))
         try:
-            lexedstring = lexerparser.lex(game)
-        except lexerparser.LexingError as e:
+            lexedstring = bl.lexer(game)
+        except bl.LexingError as e:
             uri = self.uri_for('editing', token=token, message='something went wrong with lexing {e}'.format(e=str(e)), game=game )
             self.redirect(uri)
         else:
             try:
-                textadventure = lexerparser.parser(lexedstring)
+                textadventure = bp.parser.parse(lexedstring)
             except lexerparser.ParsingError as e:
                 uri = self.uri_for('editing', token=token, message='something went wrong with parsing {e}'.format(e=str(e)), game=game)
         query = User.query(User.token == token)

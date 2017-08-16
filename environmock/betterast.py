@@ -1,17 +1,5 @@
 import zscript as zs
-
-class Endline(object):
-    def __init__(self):
-        pass
-
-    def __str__(self):
-        return '\n'
-
-    def __repr__(self):
-        return '\n'
-
-    def htmlstr(self, environment):
-        return '<br>'
+from markdown import markdown
 
 
 class Chars(object):
@@ -173,7 +161,7 @@ class Player(object):
         environment = {'zenvironment':zenvironment}
         environment['token'] = 'test12'
         while inputed != 'quit':
-            print((textadventure.rooms[self.room]).htmlstr(environment))
+            print(markdown((textadventure.rooms[self.room]).htmlstr(environment)))
             for link in textadventure.rooms[self.room].links:
                 print('you can go to ' + link)
             inputed = raw_input('>>')
@@ -205,4 +193,4 @@ class Exit(object):
         self.enters = enters
 
     def htmlstr(self, environment):
-        return '<br><br>'
+        return self.enters
