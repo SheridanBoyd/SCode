@@ -17,7 +17,7 @@ try:
 except ImportError:
     rpython = None
 
-from lexer import Lexer
+from .lexer import Lexer
 
 
 class Rule(object):

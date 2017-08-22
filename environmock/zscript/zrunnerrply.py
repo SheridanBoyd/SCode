@@ -1,25 +1,27 @@
-from zlexerrply import lexer
-from rply.errors import *
-from zscriptrply import parser
-from zsyntaxtree import *
+from .rply.errors import *
+from .zenv import Env
+from .zlexerrply import lexer
+from .zscriptrply import parser
+from .zsyntaxtree import *
 
 
 def printgen(gen):
     x = 0
-    r = []
+    r = {}
     i = None
     z = next(gen)
-    if type(z) != list:
+    if type(z) != dict:
         if type(z) == complex:
             z = (z.real, z.imag)
         print(z)
         return z
     else:
-        r.append(z)
+        for var, val in z.items():
+            r[var] = [val]
         for i in gen:
             x += 1
-            r.append(i)
-            if x % 1000 == 0:
+            [r[var].append(val) for var, val in i.items()]
+            if x % 1 == 0:
                 print(i)
         if i is not None:
             print(i)
@@ -57,6 +59,7 @@ def testparser(test):
 
 
 def compiler(instr, x=1):
+    instr = instr.lower()
     tokens = lexer.lex(instr)
     try:
         tokens = list(tokens)
@@ -85,16 +88,16 @@ def compiler(instr, x=1):
 
 
 def runerror(e, instr, x):
-    args = ''.join([arg for arg in e.args if type(arg) == str])
+    args = ', '.join([str(arg) for arg in e.args if type(arg) in (str,)])
     etype = e.__class__.__name__
     raise Exception(
         etype + ': ' + args + '\nThere was an error while running the line: "%s" \nLineNo: %d' % (instr, x))
 
 
-def run(tree, env, instr='', x=1):
-    plotting = []
+def run(program, env, instr='', x=1):
+    plotting = None
     try:
-        out = tree(env)
+        out = program(env)
     except Exception as e:
         runerror(e, instr, x)
     if out is not None:
@@ -102,29 +105,31 @@ def run(tree, env, instr='', x=1):
             plotting = printgen(out)
         except Exception as e:
             runerror(e, instr, x)
-
     return plotting
 
 
 def compilerun(eq, env):
     x = 1
-    eq = eq.splitlines()
+    nlines = eq.splitlines()
+    lines = [line.split(';;')[0] for line in nlines]
+    neq = [item for sublist in lines for item in sublist.split(';')]
     plottings = []
-    for instr in eq:
+    for instr in neq:
         tree = compiler(instr, x)
         plot = run(tree, env, instr, x)
-        if type(tree) in (Next, Print):
+        if plot is not None:
             plottings.append(plot)
         x += 1
     return plottings
 
 
-def repl():
-    env = Env(repl=True)
+def repl(env=None):
+    if env is None:
+        env = Env(repl=True)
     eq = None
     print('Type in your Equation, "env" to see the variables, or "quit" to stop')
     while eq != 'quit':
-        eq = raw_input('>>> ')
+        eq = input('>>> ')
         if eq == 'env':
             print(env)
         elif eq != 'quit':
@@ -135,11 +140,10 @@ def repl():
             for warning in ZWarning.currentwarnings:
                 print(warning)
             ZWarning.clearwarnings()
+    return env
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    import numpy as np
     repl()
     consta = '''
         F = 1
@@ -337,7 +341,8 @@ if __name__ == '__main__':
                 trace t
                 trace Xball
                 trace dLdt
-                next 50000
+                next 23100
+                graph Xball
                 '''
 
     threebody = '''
@@ -446,7 +451,8 @@ next 10
     booleantest = '''
     x := 2
     y := True
-   ;; x-or = x or y and not x and y
+    x-or = x or y and not x and y
+    x-or := 1
     c := 1
     -2x(c)x(c)3^c/x(c)x/(c)3(c)
     2x/3y
@@ -464,15 +470,10 @@ next 10
     # 3x/(3x*y) /
 
     env1 = Env()
-    out = compilerun(booleantest, env1)
-    # print(out)
-    env2 = Env({'False': Boolean(False), 'sq': Literal(101.0), 'True': Boolean(True), 't': Literal(10.0),
-               'x': Literal(10.0498756211)},
-              {'yh': Literal(1j), 'xh': Number(1.0), 'sqrg': Exp(Variable("x"), Number(2.0))},
-              {'x': Div(Add(Exp(Variable("x"), Number(2.0)), Variable("sq")), Mul(Number(2.0), Variable("x"))),
-               't': Add(Variable("t"), Number(1.0))},
-              defaultdict(list, {'t_': ['t'], 'x': [], 'x_': ['x', 'sq'], 't': [], 'sqrg': ['x']}), ['t', 'x', 'sqrg'],
-              {'mag': FuncCall(abs)})
+    out = compilerun(spring3, env1)
+    with open('graph.html', 'w') as f:
+        f.write(out[1])
+    print(env1.object['data'])
     # print('done')
     # plottings = out
     # plotting = np.array(plottings[0])
@@ -505,4 +506,4 @@ next 10
          -0.754, -0.761, -0.757, -0.739, -0.719, -0.697, -0.68, -0.664, -0.655, -0.651, -0.659, -0.671, -0.69, -0.71,
          -0.729, -0.743, -0.756, -0.758, -0.75, -0.737, -0.718, -0.699, -0.677, -0.662, -0.654, -0.652]
     # plt.plot(X,Y)
-    plt.show()
+    # plt.show()

@@ -137,6 +137,10 @@ Here's a numbered list:
 
     also?
 
+[[otherthing|alt]]
+thing
+
+![yay](https://img10.deviantart.net/89b7/i/2012/252/6/c/fluttershy__s_yay_badge_by_zutheskunk-d3e8usb.png)
 
 """
 

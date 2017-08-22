@@ -1,9 +1,9 @@
-from rply import LexerGenerator
+from .rply import LexerGenerator
 
 lg = LexerGenerator()
 
 lg.add('AND', r' *and *')
-lg.add('NOT', r' *not *')
+lg.add('NOT', r'not *')
 lg.add('OR', r' *or *')
 lg.add('COMP', r' *(==|!=|<=|>=|<|>) *')
 lg.add('ADD', r' *\+ *')
@@ -27,10 +27,12 @@ lg.add('NL', r'[\n\r;]+')
 lg.add('NXT', r'next +')
 lg.add('NXV', r'_')
 
+lg.add('GPH', r'graph +')
+
 lg.add('TRC', r'trace +')
 
 lg.add('STRING', r'"[^"]*"')
-lg.add('NUMBER', r'\d+(\.\d+)?')
+lg.add('NUMBER', r'\d+(\.\d+)?(e[\-\+]\d{1,3})?')
 lg.add('IDENT', r'[a-zA-Z][a-zA-Z0-9]*(\-[a-zA-Z0-9]+)?')
 lg.add('SPC', r' +')
 
@@ -38,7 +40,7 @@ lg.add('SPC', r' +')
 lexer = lg.build()
 
 if __name__ == '__main__':
-    from rply import *
+    from zscript.rply import *
     test = """a := 1;b := 2;c := 1;d2 = b^2 - 4*a*c;x1 = -b + d2^0.5;x2 = -b - d2^0.5;[a, b, c, d2, x1, x2];"""
     # for token in lexer.lex(test):
     #     print token
@@ -66,7 +68,7 @@ if __name__ == '__main__':
 
     t = []
     try:
-        print list(lexer.lex(test))
+        print(list(lexer.lex(test)))
     except Exception as e:
         l = e.source_pos.lineno
         c = e.source_pos.idx

@@ -102,8 +102,11 @@ class Text_Adventure(object):
 
 class Link(object):
     def __init__(self, linkto, alttext=None):
-        self.linkto = linkto
-        self.alttext = alttext
+        self.linkto = str(linkto)
+        if alttext == None:
+            self.alttext = str(linkto)
+        else:
+            self.alttext = str(alttext)
 
     def __str__(self):
         if self.alttext == None:
@@ -119,12 +122,10 @@ class Link(object):
             return '[[%s|%s]]' % (repr(self.linkto), repr(self.alttext))
 
     def htmlstr(self, environment):
-        if self.alttext == None:
-            return '<a href="/%s/rooms/%s">%s</a>' % (
-            environment['token'], self.linkto.htmlstr(environment), self.linkto.htmlstr(environment))
-        else:
-            return '<a href="/%s/rooms/%s">%s</a>' % (
-            environment['token'], self.linkto.htmlstr(environment), self.alttext.htmlstr(environment))
+        return '[{alt}](/{token}/rooms/{link})'.format(
+            token = environment['token'],
+            link = self.linkto,
+            alt = self.alttext)
 
 
 class Special(object):
@@ -193,4 +194,4 @@ class Exit(object):
         self.enters = enters
 
     def htmlstr(self, environment):
-        return self.enters
+        return '<br/>'*len(self.enters)

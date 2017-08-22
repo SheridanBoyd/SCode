@@ -1,12 +1,12 @@
-from rply import *
-from zsyntaxtree import *
+from .rply import *
+from .zsyntaxtree import *
 
 # 'NUMBER', 'IDENT',
 # 'ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'DEF', 'EQ', 'COMP',
 # 'RB', 'LB', 'LLB', 'LRB', 'SEP', 'NL'
 
 #pg = ParserGenerator(['NUMBER', 'IDENT', 'EQ', 'ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'RB', 'LB', 'NL'],
-pg = ParserGenerator(['NUMBER', 'IDENT', 'STRING', 'EQ', 'DEF', 'AND', 'OR', 'NOT', 'COMP', 'ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'RB', 'LB', 'COM', 'NXT', 'NXV', 'TRC', 'SPC', 'NEG'],#, 'LLB', 'LRB', 'SEP'],
+pg = ParserGenerator(['NUMBER', 'IDENT', 'STRING', 'EQ', 'DEF', 'AND', 'OR', 'NOT', 'COMP', 'ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'RB', 'LB', 'COM', 'NXT', 'NXV', 'TRC', 'GPH', 'SPC', 'NEG'],#, 'LLB', 'LRB', 'SEP'],
 
                       precedence=[
                                   ('left', ['CONVERT']),
@@ -42,6 +42,7 @@ pg = ParserGenerator(['NUMBER', 'IDENT', 'STRING', 'EQ', 'DEF', 'AND', 'OR', 'NO
 @pg.production('line : setfunc')
 @pg.production('line : nextfunc')
 @pg.production('line : trace')
+@pg.production('line : graph')
 def line(p):
     return p[0]
 
@@ -87,10 +88,21 @@ def var(p):
 #     t1 = p[0].getstr()
 #     t2 = p[1]
 #     return Value(t2, t1)
+@pg.production('graph : GPH IDENT SPC IDENT')
+@pg.production('graph : GPH IDENT')
+def graph(p):
+    x = p[1].getstr()
+    try:
+        y = p[3].getstr()
+    except:
+        y = None
+    return Graph(x, y)
+
 
 @pg.production('expression : NOT expression', precedence='NOT')
-def notbool(p):
-    return Not(p[1])
+@pg.production('expression : NEG expression', precedence='UNI')
+def uniop(p):
+    return UniOp(p[1], p[0].getstr())
 
 
 @pg.production('setvar : IDENT EQ expression', precedence='EQ')
@@ -107,44 +119,17 @@ def notbool(p):
 def expression(p):
     l = p[0]
     r = p[-1]
-    o = p[-2].gettokentype()
-    if o == 'ADD':
-        r = Add(l,r)
-    elif o == 'SUB':
-        r = Sub(l, r)
-    elif o == 'MUL':
-        r = Mul(l, r)
-    elif o == 'DIV':
-        r = Div(l, r)
-    elif o == 'EXP':
-        r = Exp(l, r)
-    elif o == 'EQ':
+    ot = p[-2].gettokentype()
+    o = p[-2].getstr()
+    if ot in ('ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'COMP', 'AND', 'OR'):
+        r = BinOp(l, r, o)
+    elif ot == 'EQ':
         r = SetVar(l.getstr(), r)
-    elif o == 'DEF':
+    elif ot == 'DEF':
         cur = p[1].gettokentype() != 'NXV'
         r = SetDef(l.getstr(), r, cur=cur)
-    elif o == 'COMP':
-        comp = p[-2].getstr()
-        r = Compare(l, r, comp)
-    elif o == 'AND':
-        r = And(l, r)
-    elif o == 'OR':
-        r = Or(l, r)
     return r
 
-
-# @pg.production('listbit : expression')
-# @pg.production('listbit : listbit SEP listbit')
-# def listbit(p):
-#     if len(p) > 1:
-#         return list(p[0]).append(p[2])
-#     else:
-#         return p
-#
-#
-# @pg.production('expression : LLB listbit LRB')
-# def makelist(p):
-#     return List(p[1])
 
 @pg.production('expression : IDENT NXV', precedence='EXP')
 def nxv(p):
@@ -181,20 +166,10 @@ def cplx(p):
 
 @pg.production('expression : expression expression', precedence='ADJ')
 def impmul(p):
-    return Mul(p[0],p[1])
-
-
-@pg.production('expression : NEG expression', precedence='UNI')
-def neg(p):
-    return Value(p[1], '-')
+    return BinOp(p[0],p[1],'*')
 
 
 parser = pg.build()
 
 if __name__ == '__main__':
     pass
-
-#    next variable       n_
-#    delta
-#    differential        n'
-#    string              "string"
