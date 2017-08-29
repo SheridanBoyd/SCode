@@ -26,12 +26,15 @@ import zscript as zs
 import lexerparser
 import betterlexer as bl
 import betterparser as bp
-from markdown import markdown
+#from markdown import markdown
+import markdown
 import betterast as ba
 
 textadventure = None #IT gets set later in gamehandler and gets used
 zenvironment = zs.Env(repl=True)
 environment = {'zenvironment':zenvironment}
+md = markdown.Markdown(extensions=['markdown.extensions.fenced_code','markdown.extensions.nl2br','urlize'])
+
 
 example = """#start
 [[music]]
@@ -133,7 +136,7 @@ class RoomHandler(webapp2.RequestHandler):
         lexedstring = bl.lexer(game)
         textadventure = bp.parser.parse(lexedstring)
         environment['token'] = token
-        self.response.write(markdown((textadventure.rooms[room]).htmlstr(environment), extensions=['markdown.extensions.fenced_code']))
+        self.response.write(md.convert(((textadventure.rooms[room]).htmlstr(environment))))
 
 class EditingHandler(webapp2.RequestHandler):
     def get(self,token):
@@ -162,8 +165,11 @@ class SaveHandler(webapp2.RequestHandler):
         else:
             try:
                 textadventure = bp.parser.parse(lexedstring)
-            except lexerparser.ParsingError as e:
-                uri = self.uri_for('editing', token=token, message='something went wrong with parsing {e}'.format(e=str(e)), game=game)
+            except bp.ParsingError as e:
+                spos = e.getsourcepos()
+                linenum = spos.lineno
+                colnum = spos.colno
+                raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum))
         query = User.query(User.token == token)
         user = query.get()
         user.game = game

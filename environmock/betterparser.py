@@ -4,7 +4,7 @@ from betterlexer import *
 
 pg = ParserGenerator(
     ['OPEN_LINK', 'CLOSE_LINK', 'ALT_TEXT', 'NEW_ROOM',
-     'EOL', 'CHARS', 'SCRIPT', 'NEW_SPECIAL'])
+     'EOL', 'CHARS', 'SCRIPT', 'NEW_SPECIAL', 'PRE_TAG'])
 
 
 @pg.production('text_adventure : rooms')
@@ -24,7 +24,7 @@ def expression_link(p):
 def expression_link_alt(p):
     return Link(p[1], p[3])
 
-
+@pg.production('chars : PRE_TAG')
 @pg.production('chars : CHARS')
 def expression_chars(p):
     return Chars(p[0].getstr())
@@ -43,12 +43,11 @@ def expression_exit(p):
     return '\n'
 
 
-@pg.production('special : NEW_SPECIAL room_desc_line EOL')
+@pg.production('special : break NEW_SPECIAL room_desc_line EOL')
 def expression_special(p):
-    return Special(p[0].getstr()[2:-1],Room_desc(p[1]))
+    return Special(p[1].getstr()[2:-1],Room_desc(p[2]))
 
 
-@pg.production('room_desc_line : room_desc_line special')
 @pg.production('room_desc_line : room_desc_line script')
 @pg.production('room_desc_line : room_desc_line chars')
 @pg.production('room_desc_line : room_desc_line link')
@@ -61,14 +60,19 @@ def expression_room_desc_line(p):
 def expression_room_desc_line(p):
     return []
 
+@pg.production('room_desc_line : special')
+@pg.production('room_desc_line : break')
+def expression_room_desc_line(p):
+    return [p[0]]
 
-@pg.production('room_desc : room_desc break room_desc_line ')
+
+@pg.production('room_desc : room_desc room_desc_line ')
 def expression_room_desc_begining(p):
     '''
     roomdesc: list(special/script/link/chars/break/endline)
     roomdescline: list(special/script/link/chars)
     '''
-    return p[0] + [p[1]] + p[2]
+    return p[0] + p[1]
 
 @pg.production('room_desc : room_desc_line')
 def expression_room_desc_begining(p):
@@ -94,53 +98,10 @@ parser = pg.build()
 
 if __name__ == '__main__':
     thing = """#start
-Hi you must be new, have a *look* around and make your own game<marquee> <strong>THIS</strong> <span style='color:red'>IS</span> <em>NOT</em> <span style='background-color:#32cd32'>GOOD!!!!!!!</span></marquee>
-
-An h1 header
-============
-
-Paragraphs are separated by a blank line.
-
-2nd paragraph. *Italic*, **bold**, and `monospace`. Itemized lists
-look like:
-
-  * this one
-  * that one
-  * the other one
-
-Note that --- not considering the asterisk --- the actual text
-content starts at 4-columns in.
-
-> Block quotes are
-> written like so.
->
-> They can span multiple paragraphs,
-> if you like.
-
-Use 3 dashes for an em-dash. Use 2 dashes for ranges (ex., "it's all
-in chapters 12--14"). Three dots ... will be converted to an ellipsis.
-Unicode is supported.
-
-
-
-An h2 header
-------------
-
-Here's a numbered list:
-
- 1. first item
- 2. second item
- 3. third item
-
-    codeblock?
-    111WWW00OOllliii
-
-    also?
-
-[[otherthing|alt]]
-thing
-
-![yay](https://img10.deviantart.net/89b7/i/2012/252/6/c/fluttershy__s_yay_badge_by_zutheskunk-d3e8usb.png)
+{thing = 0}
+Two orthogonal syntaxes means that they
+{? thing == 0}blah
+have nothing in common, and if you change one, it doesn't affect the other when you put them together. for example, if you have a syntax for just presentation, and you have a syntax for maths, if you change one, it doesn't affect the other.
 
 """
 

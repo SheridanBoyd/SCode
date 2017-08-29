@@ -2,6 +2,7 @@ from rply import LexerGenerator
 
 lg = LexerGenerator()
 
+lg.add('PRE_TAG', r'~~~([^~]|~(?!~~))+~~~')
 lg.add('OPEN_LINK', r'\[\[')
 lg.add('CLOSE_LINK', r'\]\]')
 lg.add('ALT_TEXT', r'\|')

@@ -141,7 +141,7 @@ class Special(object):
 
     def htmlstr(self, environment):
         if list(zs.compilerun(str(self.conditions), environment['zenvironment']))[0]:
-            return '<br>' + str(self.guard_desc.htmlstr(environment))
+            return str(self.guard_desc.htmlstr(environment))
         else:
             return ''  # list(zs.compilerun(repr(self.conditions),environment['zenvironment']))[0]
 
@@ -194,4 +194,4 @@ class Exit(object):
         self.enters = enters
 
     def htmlstr(self, environment):
-        return '<br/>'*len(self.enters)
+        return '\n'*len(self.enters)
