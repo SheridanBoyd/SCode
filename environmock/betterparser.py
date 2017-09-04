@@ -4,7 +4,7 @@ from betterlexer import *
 
 pg = ParserGenerator(
     ['OPEN_LINK', 'CLOSE_LINK', 'ALT_TEXT', 'NEW_ROOM',
-     'EOL', 'CHARS', 'SCRIPT', 'NEW_SPECIAL', 'PRE_TAG'])
+     'EOL', 'CHARS', 'SCRIPT', 'NEW_SPECIAL', 'PRE_TAG', 'PREV_LINE'])
 
 
 @pg.production('text_adventure : rooms')
@@ -29,6 +29,10 @@ def expression_link_alt(p):
 def expression_chars(p):
     return Chars(p[0].getstr())
 
+@pg.production('chars : PREV_LINE')
+def expression_chars(p):
+    return Chars('')
+
 @pg.production('exit : exit EOL')
 def expression_exit(p):
     return p[0] + '\n'
@@ -43,11 +47,11 @@ def expression_exit(p):
     return '\n'
 
 
-@pg.production('special : break NEW_SPECIAL room_desc_line EOL')
+@pg.production('special : NEW_SPECIAL room_desc_line ')
 def expression_special(p):
-    return Special(p[1].getstr()[2:-1],Room_desc(p[2]))
+    return Special(p[0].getstr()[2:-1],Room_desc(p[1]))
 
-
+@pg.production('room_desc_line : room_desc_line special')
 @pg.production('room_desc_line : room_desc_line script')
 @pg.production('room_desc_line : room_desc_line chars')
 @pg.production('room_desc_line : room_desc_line link')
@@ -60,19 +64,18 @@ def expression_room_desc_line(p):
 def expression_room_desc_line(p):
     return []
 
-@pg.production('room_desc_line : special')
-@pg.production('room_desc_line : break')
-def expression_room_desc_line(p):
-    return [p[0]]
+#@pg.production('room_desc_line : special')
+#def expression_room_desc_line(p):
+#    return [p[0]]
 
 
-@pg.production('room_desc : room_desc room_desc_line ')
+@pg.production('room_desc : room_desc break room_desc_line ')
 def expression_room_desc_begining(p):
     '''
     roomdesc: list(special/script/link/chars/break/endline)
     roomdescline: list(special/script/link/chars)
     '''
-    return p[0] + p[1]
+    return p[0] + [p[1]] + p[2]
 
 @pg.production('room_desc : room_desc_line')
 def expression_room_desc_begining(p):
@@ -98,21 +101,43 @@ parser = pg.build()
 
 if __name__ == '__main__':
     thing = """#start
-{thing = 0}
-Two orthogonal syntaxes means that they
-{? thing == 0}blah
-have nothing in common, and if you change one, it doesn't affect the other when you put them together. for example, if you have a syntax for just presentation, and you have a syntax for maths, if you change one, it doesn't affect the other.
-
+{sellsolar = 0}
+{buysolar = 1}
+{sellsolar := 1}
+hi
+{?buysolar == 1} An entrepreneur buys your solar stuff  {buysolar := 0} {sellsolar := 0}
+{?buysolar == 0} No entrepreneur's want to buy your solar stuff
+hi
+[[researchergame|Go back]]
 """
+#     thing = """#start
+# [[Design|Designing the language]]
+#
+# {?design == 1} [[Lexing|Lexing the language]]
+#
+# ~~~
+# {?lexing == 1} [[Parsing|Parsing the language]]
+#
+# {?parsing == 1} [[AST|Making an Abstract Syntax Tree]]
+# ~~~
+# {?ast == 1} [[Runtime|Runtime]]
+#
+#
+# {?runtime == 1} [[Web|Putting it on the web]]
+# """
 
     tokens = lexer(thing)
+    tokens = list(tokens)
+    print(tokens)
+    tokens = (t for t in tokens)
     try:
         AST = parser.parse(tokens)
     except ParsingError as e:
         spos = e.getsourcepos()
         linenum = spos.lineno
         colnum = spos.colno
-        raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum))
+        listthing = thing.split('\n')
+        raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum) + '\n' + str(listthing[linenum]))
     print(str(AST))
     print(type(AST))
     print AST.rooms

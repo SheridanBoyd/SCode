@@ -95,6 +95,9 @@ class Random(Literal):
     def __call__(self, env, flag=None):
         return rdm.random()
 
+    def __repr__(self):
+        return 'random'
+
 
 class Vector(Literal):
     def __init__(self, x, y):
@@ -190,11 +193,11 @@ class Next(Base):
         genv = env.object['gph']
         nenv = env.object['nxt']
         vars = tenv
-        for x, y in genv:
-            if x not in vars:
-                vars.append(x)
-            if y not in vars:
-                vars.append(y)
+        # for x, y in genv:
+        #     if x not in vars:
+        #         vars.append(x)
+        #     if y not in vars and y is not None:
+        #         vars.append(y)
 
         dictdata = lambda vars: {var: env[var, 'cur'] for var in vars}
 
@@ -213,24 +216,28 @@ class Next(Base):
             c = dictdata(vars)
             return c
 
-        def nextdata():
-            def n1():
-                yield dictdata(vars)
-                for i in range(self.loops):
-                    yield loop()
-            def n2():
-                def i():
-                    yield dictdata(vars)
-                    while True:
-                        yield loop()
-                yield i()
-            if self.loops > 0:
-                return n1()
-            else:
-                return n2()
+        def n1():
+            c = dictdata(vars)
+            yield c
+            for i in range(self.loops):
+                c = loop()
+                yield c
 
-        self.nextdata = nextdata()
-        return nextdata()
+        def n2():
+            def i():
+                c = dictdata(vars)
+                yield c
+                while True:
+                    c = loop()
+                    yield c
+            yield i()
+
+        if self.loops > 0:
+            r = n1()
+        else:
+            r = n2()
+
+        return r
 
     def __repr__(self):
         return 'next ' + str(self.loops)
@@ -274,6 +281,14 @@ class Graph(Base):
         return r
 
 
+def if_(l, r):
+    return l if r else 0
+
+
+def else_(l, r):
+    return l if l else r
+
+
 class BinOp(Base):
     ops = {'^': (op.pow, 8),
            '*': (op.mul, 7),
@@ -287,7 +302,9 @@ class BinOp(Base):
            '<': (op.lt, 4),
            '>': (op.gt, 4),
            'and': (op.and_, 2),
-           'or': (op.or_, 1)}
+           'or': (op.or_, 1),
+           'if': (if_, 0),
+           'else': (else_, 0)}
 
     def __init__(self, l, r, com):
         self.l = l

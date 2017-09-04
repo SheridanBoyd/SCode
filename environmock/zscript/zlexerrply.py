@@ -2,6 +2,8 @@ from .rply import LexerGenerator
 
 lg = LexerGenerator()
 
+lg.add('IF', r' *if *')
+lg.add('ELSE', r' *else *')
 lg.add('AND', r' *and *')
 lg.add('NOT', r'not *')
 lg.add('OR', r' *or *')
@@ -25,7 +27,7 @@ lg.add('COM', r' *, *')
 lg.add('NL', r'[\n\r;]+')
 
 lg.add('NXT', r'next +')
-lg.add('NXV', r'_')
+lg.add('NXV', r'_\+')
 
 lg.add('GPH', r'graph +')
 
@@ -45,14 +47,14 @@ if __name__ == '__main__':
     # for token in lexer.lex(test):
     #     print token
 
-    #test = """a 1 1.0 := = A + A -A * A / A ^ A ; ( ) [ A A A A A A ] , != A ?= A <= A >= A < A > next _ a_ trace "aliuhv h289f42 R #$@#T 4321r " "" """
+    #test = """a 1 1.0 := = A + A -A * A / A ^ A ; ( ) [ A A A A A A ] , != A ?= A <= A >= A < A > next _+ a_+ trace "aliuhv h289f42 R #$@#T 4321r " "" """
     expected = [Token('IDENT', 'a'), Token('IDENT', 'A'), Token('NUMBER', '1'), Token('NUMBER', '1.0'),
                 Token('EQ', ':='), Token('DEF', '='), Token('ADD', '+'), Token('SUB', '-'),
                 Token('MUL', '*'), Token('DIV', '/'), Token('EXP', '^'), Token('NL', ';'),
                 Token('LB', '('), Token('RB', ')'), Token('LLB', '['), Token('LRB', ']'),
                 Token('SEP', ','), Token('COMP', '!='), Token('COMP', '?='), Token('COMP', '<='),
-                Token('COMP', '>='), Token('COMP', '<'), Token('COMP', '>'), Token('NXT', 'next'), Token('NXV', '_'),
-                Token('IDENT', 'a'), Token('NXV', '_'), Token('TRC', 'trace'), Token('STRING', '"aliuhv h289f42 R #$@#T 4321r "'),
+                Token('COMP', '>='), Token('COMP', '<'), Token('COMP', '>'), Token('NXT', 'next'), Token('NXV', '_+'),
+                Token('IDENT', 'a'), Token('NXV', '_+'), Token('TRC', 'trace'), Token('STRING', '"aliuhv h289f42 R #$@#T 4321r "'),
                 Token('STRING', '""')]
     n = []
     x = 0

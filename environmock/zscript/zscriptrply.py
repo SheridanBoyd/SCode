@@ -6,11 +6,12 @@ from .zsyntaxtree import *
 # 'RB', 'LB', 'LLB', 'LRB', 'SEP', 'NL'
 
 #pg = ParserGenerator(['NUMBER', 'IDENT', 'EQ', 'ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'RB', 'LB', 'NL'],
-pg = ParserGenerator(['NUMBER', 'IDENT', 'STRING', 'EQ', 'DEF', 'AND', 'OR', 'NOT', 'COMP', 'ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'RB', 'LB', 'COM', 'NXT', 'NXV', 'TRC', 'GPH', 'SPC', 'NEG'],#, 'LLB', 'LRB', 'SEP'],
+pg = ParserGenerator(['NUMBER', 'IDENT', 'STRING', 'EQ', 'DEF', 'IF', 'ELSE', 'AND', 'OR', 'NOT', 'COMP', 'ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'RB', 'LB', 'COM', 'NXT', 'NXV', 'TRC', 'GPH', 'SPC', 'NEG'],#, 'LLB', 'LRB', 'SEP'],
 
                       precedence=[
                                   ('left', ['CONVERT']),
                                   ('left', ['EQ', 'DEF']),
+                                  ('left', ['IF', 'ELSE']),
                                   ('left', ['AND']),
                                   ('left', ['OR']),
                                   ('left', ['NOT']),
@@ -108,6 +109,8 @@ def uniop(p):
 @pg.production('setvar : IDENT EQ expression', precedence='EQ')
 @pg.production('setfunc : IDENT DEF expression', precedence='DEF')
 @pg.production('setfunc : IDENT NXV DEF expression', precedence='DEF')
+@pg.production('expression : expression ELSE expression', precedence='ELSE')
+@pg.production('expression : expression IF expression', precedence='IF')
 @pg.production('expression : expression AND expression', precedence='AND')
 @pg.production('expression : expression OR expression', precedence='OR')
 @pg.production('expression : expression COMP expression', precedence='COMP')
@@ -121,7 +124,7 @@ def expression(p):
     r = p[-1]
     ot = p[-2].gettokentype()
     o = p[-2].getstr()
-    if ot in ('ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'COMP', 'AND', 'OR'):
+    if ot in ('ADD', 'SUB', 'MUL', 'DIV', 'EXP', 'COMP', 'AND', 'OR', 'IF', 'ELSE'):
         r = BinOp(l, r, o)
     elif ot == 'EQ':
         r = SetVar(l.getstr(), r)

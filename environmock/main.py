@@ -124,7 +124,7 @@ class QuickEditHandler(webapp2.RequestHandler):
 
 class GameHandler(webapp2.RequestHandler):
     def get(self,token):
-        pass
+        self.response.write("<div id='game'></div>")
 
 class RoomHandler(webapp2.RequestHandler):
     def get(self,token,room):
@@ -169,7 +169,9 @@ class SaveHandler(webapp2.RequestHandler):
                 spos = e.getsourcepos()
                 linenum = spos.lineno
                 colnum = spos.colno
-                raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum))
+                listthing = game.split('\n')
+
+                raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum) + '\n' + str(listthing[linenum]))
         query = User.query(User.token == token)
         user = query.get()
         user.game = game
