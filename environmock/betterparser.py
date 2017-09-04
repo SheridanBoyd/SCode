@@ -83,7 +83,7 @@ def expression_room_desc_begining(p):
 
 @pg.production('room : NEW_ROOM chars EOL room_desc break')
 def expression_room(p):
-    return Room(p[1], Room_desc(p[3]))
+    return Room(p[1].strip(), Room_desc(p[3]))
 
 
 @pg.production('rooms : rooms room')
@@ -100,7 +100,7 @@ def expression_rooms_begining(p):
 parser = pg.build()
 
 if __name__ == '__main__':
-    thing = """#start
+    thing = """#  start
 {sellsolar = 0}
 {buysolar = 1}
 {sellsolar := 1}

@@ -18,6 +18,9 @@ class Chars(object):
     def htmlstr(self, environment):
         return self.characters
 
+    def strip(self):
+        return Chars(self.characters.strip())
+
 
 class Room_desc(object):
     def __init__(self, itemlist):
