@@ -171,7 +171,7 @@ class SaveHandler(webapp2.RequestHandler):
                 colnum = spos.colno
                 listthing = game.split('\n')
 
-                raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum) + '\n' + str(listthing[linenum]))
+                raise SyntaxError('there was an error on line ' + str(linenum) + ' and column ' + str(colnum) + '\n' + str(listthing[linenum-2]) + '\n' + str(listthing[linenum-1]) + '\n' + str(listthing[linenum]))
         query = User.query(User.token == token)
         user = query.get()
         user.game = game

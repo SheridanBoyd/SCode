@@ -33,3 +33,4 @@ this is a test [[blah]] {blah = 1}
 """
     tokens = lexer(thing)
     print(list(tokens)[1].getstr())
+

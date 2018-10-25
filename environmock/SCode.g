@@ -17,11 +17,11 @@ room_desc
 	;
 	
 room_desc_line
-	:	(link | CHARS | special | script)+
+	:	(link | CHARS | guard | script)+
 	;
 	
-special
-	:	NEW_SPECIAL room_desc_line EOL
+guard
+	:	NEW_GUARD room_desc_line EOL
 	;
 
 script
@@ -47,7 +47,7 @@ NEW_ROOM
 	:	'#'
 	;
     	
-NEW_SPECIAL
+NEW_GUARD
 	:	'{?' (' '..'|')* '}'
 	;
 	
@@ -66,3 +66,5 @@ CHARS
 UNMATCHED
 	:	'{'|'}'
 	;
+	
+	
